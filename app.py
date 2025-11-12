@@ -5,7 +5,7 @@ from azure.keyvault.secrets import SecretClient
 app = Flask(__name__)
 
 keyvault_name = "kv-flask-demo"
-secret_name = "mySecret"
+secret_name = "mysecret"
 KVUri = f"https://{keyvault_name}.vault.azure.net"
 
 credential = DefaultAzureCredential()
