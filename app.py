@@ -1,6 +1,7 @@
 from flask import Flask
-from azure.identity import DefaultAzureCredential
-from azure.keyvault.secrets import SecretClient
+import asyncio
+from azure.identity.aio import DefaultAzureCredential
+from azure.keyvault.secrets.aio import SecretClient
 
 app = Flask(__name__)
 
@@ -8,16 +9,15 @@ keyvault_name = "kv-flask-demo"
 secret_name = "sahbi"
 KVUri = f"https://{keyvault_name}.vault.azure.net"
 
-credential = DefaultAzureCredential()
-client = SecretClient(vault_url=KVUri, credential=credential)
+async def get_secret():
+    async with DefaultAzureCredential() as credential:
+        async with SecretClient(vault_url=KVUri, credential=credential) as client:
+            secret = await client.get_secret(secret_name)
+            return secret.value
 
 @app.route("/")
 def index():
-    try:
-        secret = client.get_secret(secret_name)
-        secret_value = secret.value
-    except Exception as e:
-        secret_value = f"Erreur lors de la lecture du secret : {e}"
+    secret_value = asyncio.run(get_secret())
     return f"Le secret est : {secret_value}"
 
 if __name__ == "__main__":
